@@ -1,4 +1,3 @@
-
 name: CI
 
 on:
@@ -16,10 +15,43 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Run a one-line script
-        run: echo Hello, world!
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
 
-      - name: Run a multi-line script
+      - name: Install dependencies
+        run: pip install websockets
+
+      - name: Call WebSocket Server
         run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+          python - <<EOF
+          import asyncio
+          import websockets
+          import time
+
+          async def call_websocket():
+              uri = "wss://ecea-2406-7400-1c1-9ff-f0ac-e050-3c50-3497.ngrok-free.app"  # Replace with your ngrok WebSocket URL
+              try:
+                  async with websockets.connect(uri) as websocket:
+                      print("Connected to WebSocket server.")
+                      message = "Hello from GitHub Actions!"
+                      print(f"Sending message: {message}")
+                      
+                      # Record start time and send the message
+                      start_time = time.time()
+                      await websocket.send(message)
+                      
+                      # Wait for a response
+                      response = await websocket.recv()
+                      end_time = time.time()
+
+                      print(f"Response from server: {response}")
+                      print(f"Response time: {end_time - start_time:.2f} seconds")
+
+              except Exception as e:
+                  print(f"Failed to connect or send message: {e}")
+                  exit(1)
+
+          asyncio.run(call_websocket())
+          EOF
