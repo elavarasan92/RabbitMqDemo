@@ -19,6 +19,7 @@ def callback(ch, method, properties, body):
 
 def main():
     credentials = pika.PlainCredentials('admin', 'admin')
+    doamin = "abc.com"
     connection = pika.BlockingConnection(
         pika.ConnectionParameters(host='localhost', port='5672', credentials=credentials))
     channel = connection.channel()
